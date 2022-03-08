@@ -54,9 +54,8 @@ IDR_MENU1 MENU
 BEGIN
     POPUP "File..."
     BEGIN
-        MENUITEM "New",                         ID_FILE_NEW
-        MENUITEM "Open",                        ID_FILE_OPEN
-        MENUITEM "Save",                        ID_FILE_SAVE
+        MENUITEM "Open (CTRL + O)",             ID_FILE_OPEN
+        MENUITEM "Save  (CTRL + S)",            ID_FILE_SAVE
         MENUITEM "Save As",                     ID_FILE_SAVEAS
         MENUITEM "Exit",                        ID_FILE_EXIT
     END

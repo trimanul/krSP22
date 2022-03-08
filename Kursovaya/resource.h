@@ -11,6 +11,10 @@
 #define ID_FILE_SAVEAS                  40004
 #define ID_FILE_EXIT                    40005
 
+//Hotkeys
+#define ID_CTRLS						200
+#define ID_CTRLO						201
+
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED

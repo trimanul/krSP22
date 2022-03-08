@@ -17,7 +17,6 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, INT nCmdShow)
 {
-    setlocale(LC_ALL, "rus");
     const wchar_t CLASS_NAME[] = L"MainWindowClass";
 
     WNDCLASS wc = {0};
@@ -58,13 +57,12 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     int MainHeight = MainRect.bottom - MainRect.top;
 
     HWND hwndEdit = CreateWindow(L"EDIT", NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_LEFT | WS_HSCROLL | WS_VSCROLL | ES_AUTOVSCROLL, 0, 0, MainWitdh - 20, MainHeight - 100, hwndMain, (HMENU)ID_EDIT, hInstance, NULL);
-    HWND hwndBtn = CreateWindow(L"BUTTON", L"END", WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_PUSHBUTTON, 10, MainHeight - 95, 100, 30, hwndMain, (HMENU)ID_BTN, hInstance, NULL);
-
     
+    RegisterHotKey(hwndMain, ID_CTRLS, MOD_CONTROL, 0x53);
+    RegisterHotKey(hwndMain, ID_CTRLO, MOD_CONTROL, 0x4F);
 
 
     ShowWindow(hwndMain, nCmdShow);
-    ShowWindow(hwndBtn, nCmdShow);
     ShowWindow(hwndEdit, nCmdShow);
 
 
@@ -100,10 +98,6 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 
     case WM_COMMAND:
     {
-        if (HIWORD(wParam) == BN_CLICKED && LOWORD(wParam) == ID_BTN) {
-            HWND hwndChildEdit = FindWindowEx(hwnd, NULL, L"EDIT", NULL);
-            SetWindowText(hwndChildEdit, L"Hello World!");
-        }
 
         if (LOWORD(wParam) == ID_FILE_OPEN) {
             HWND hwndChildEdit = FindWindowEx(hwnd, NULL, L"EDIT", NULL);
@@ -145,7 +139,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
             wchar_t buff[1024];
             GetWindowText(hwndChildEdit, buff, 1024);
 
-
+            //TODO: Fix problem of writing text to an already existing txt 
+            //      or txt created in another runtime of this same program.
             std::wofstream wofs(filePath, std::ios_base::out);
             if (wofs.is_open()) {
                 wofs.imbue(utf8_locale);
@@ -155,8 +150,25 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 
 
         }
+
+        if (LOWORD(wParam) == ID_FILE_EXIT)
+            PostQuitMessage(0);
+
         return 0;
     }
+
+    case WM_HOTKEY:
+    {
+        if (wParam == ID_CTRLS) {
+            SendMessage(hwnd, WM_COMMAND, MAKEWPARAM(ID_FILE_SAVE, NULL), NULL);
+        }
+
+        if (wParam == ID_CTRLO) {
+            SendMessage(hwnd, WM_COMMAND, MAKEWPARAM(ID_FILE_OPEN, NULL), NULL);
+        }
+    }
+    return 0;
+
 
     case WM_DESTROY:
         PostQuitMessage(0);
