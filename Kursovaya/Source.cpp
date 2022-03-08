@@ -5,9 +5,10 @@
 
 #include <windows.h>
 #include "resource.h"
+
+#include <iostream>
 #include <fstream>
 #include <string>
-#include <iostream>
 #include <sstream>
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -111,13 +112,38 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
             GetOpenFileName(&FileStruct);
 
             std::wifstream wifs(filePath);
-            std::wstringstream buff;
-            buff << wifs.rdbuf();
-            std::wstring ws = buff.str();
+            if (wifs.is_open()) {
+                std::wstringstream buff;
+                buff << wifs.rdbuf();
+                std::wstring ws = buff.str();
 
-            SetWindowText(hwndChildEdit, ws.c_str());
+                SetWindowText(hwndChildEdit, ws.c_str());
+            }
             wifs.close();
             
+
+        }
+
+        if (LOWORD(wParam) == ID_FILE_SAVE) {
+            HWND hwndChildEdit = FindWindowEx(hwnd, NULL, L"EDIT", NULL);
+            wchar_t filePath[128];
+            filePath[0] = NULL;
+            OPENFILENAME FileStruct = { NULL };
+            FileStruct.lStructSize = sizeof(OPENFILENAME);
+            FileStruct.lpstrFile = filePath;
+            FileStruct.nMaxFile = 128;
+            GetSaveFileName(&FileStruct);
+
+            wchar_t buff[1024];
+            GetWindowText(hwndChildEdit, buff, 1024);
+
+
+            std::wofstream wofs(filePath, std::ios_base::out);
+            if (wofs.is_open()) {
+                wofs << buff;
+            }
+            wofs.close();
+
 
         }
         return 0;
