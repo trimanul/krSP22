@@ -6,6 +6,8 @@
 #include <windows.h>
 #include "resource.h"
 
+#include <locale>
+#include <codecvt>
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -15,6 +17,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, INT nCmdShow)
 {
+    setlocale(LC_ALL, "rus");
     const wchar_t CLASS_NAME[] = L"MainWindowClass";
 
     WNDCLASS wc = {0};
@@ -80,6 +83,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 }
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) { //hwnd - window handle; uMsg - message code; wParam & lParam - additional data
+    const std::locale utf8_locale = std::locale(std::locale(), new std::codecvt_utf8<wchar_t>());
     
     switch (uMsg) {
     case WM_PAINT:
@@ -114,6 +118,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 
             std::wifstream wifs(filePath);
             if (wifs.is_open()) {
+                wifs.imbue(utf8_locale);
                 std::wstringstream buff;
                 buff << wifs.rdbuf();
                 std::wstring ws = buff.str();
@@ -143,6 +148,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 
             std::wofstream wofs(filePath, std::ios_base::out);
             if (wofs.is_open()) {
+                wofs.imbue(utf8_locale);
                 wofs << buff;
             }
             wofs.close();
