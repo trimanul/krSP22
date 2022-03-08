@@ -5,6 +5,10 @@
 
 #include <windows.h>
 #include "resource.h"
+#include <fstream>
+#include <string>
+#include <iostream>
+#include <sstream>
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -49,8 +53,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     int MainWitdh = MainRect.right - MainRect.left;
     int MainHeight = MainRect.bottom - MainRect.top;
 
-    HWND hwndEdit = CreateWindow(L"EDIT", NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_LEFT, 10, 10, MainWitdh - 40, 300, hwndMain, (HMENU)ID_EDIT, hInstance, NULL);
-    HWND hwndBtn = CreateWindow(L"BUTTON", L"END", WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_PUSHBUTTON, 10, 320, 100, 30, hwndMain, (HMENU)ID_BTN, hInstance, NULL);
+    HWND hwndEdit = CreateWindow(L"EDIT", NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_LEFT | WS_HSCROLL | WS_VSCROLL | ES_AUTOVSCROLL, 0, 0, MainWitdh - 20, MainHeight - 100, hwndMain, (HMENU)ID_EDIT, hInstance, NULL);
+    HWND hwndBtn = CreateWindow(L"BUTTON", L"END", WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_PUSHBUTTON, 10, MainHeight - 95, 100, 30, hwndMain, (HMENU)ID_BTN, hInstance, NULL);
 
     
 
@@ -95,6 +99,27 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
             HWND hwndChildEdit = FindWindowEx(hwnd, NULL, L"EDIT", NULL);
             SetWindowText(hwndChildEdit, L"Hello World!");
         }
+
+        if (LOWORD(wParam) == ID_FILE_OPEN) {
+            HWND hwndChildEdit = FindWindowEx(hwnd, NULL, L"EDIT", NULL);
+            wchar_t filePath[128];
+            filePath[0] = NULL;
+            OPENFILENAME FileStruct = {NULL};
+            FileStruct.lStructSize = sizeof(OPENFILENAME);
+            FileStruct.lpstrFile = filePath;
+            FileStruct.nMaxFile = 128;
+            GetOpenFileName(&FileStruct);
+
+            std::wifstream wifs(filePath);
+            std::wstringstream buff;
+            buff << wifs.rdbuf();
+            std::wstring ws = buff.str();
+
+            SetWindowText(hwndChildEdit, ws.c_str());
+            wifs.close();
+            
+
+        }
         return 0;
     }
 
@@ -105,3 +130,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
     return DefWindowProc(hwnd, uMsg, wParam, lParam);;
 
 }
+
+
+
+
