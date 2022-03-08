@@ -32,7 +32,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 
     HWND hwndMain = CreateWindow(
         CLASS_NAME,                     // Window class
-        L"WINAPI",    // Window text
+        L"Empty.txt",    // Window text
         WS_OVERLAPPEDWINDOW,            // Window style
 
         // Size and position
@@ -110,6 +110,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
             FileStruct.lpstrFile = filePath;
             FileStruct.nMaxFile = 128;
             GetOpenFileName(&FileStruct);
+            SetWindowText(hwnd, filePath);
 
             std::wifstream wifs(filePath);
             if (wifs.is_open()) {
@@ -133,6 +134,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
             FileStruct.lpstrFile = filePath;
             FileStruct.nMaxFile = 128;
             GetSaveFileName(&FileStruct);
+
+            SetWindowText(hwnd, filePath);
 
             wchar_t buff[1024];
             GetWindowText(hwndChildEdit, buff, 1024);
