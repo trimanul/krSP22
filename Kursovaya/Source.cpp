@@ -4,6 +4,7 @@
 
 
 #include <windows.h>
+#include "resource.h"
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -21,6 +22,9 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     if (!RegisterClass(&wc)) 
         return -1;
 
+    HMENU hMainMenu = LoadMenu(NULL, MAKEINTRESOURCE(IDR_MENU1));
+
+
     HWND hwndMain = CreateWindow(
         CLASS_NAME,                     // Window class
         L"WINAPI",    // Window text
@@ -30,7 +34,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
         CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
 
         NULL,       // Parent window    
-        NULL,       // Menu
+        hMainMenu,       // Menu
         hInstance,  // Instance handle
         NULL        // Additional application data
     );
@@ -45,8 +49,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     int MainWitdh = MainRect.right - MainRect.left;
     int MainHeight = MainRect.bottom - MainRect.top;
 
-    HWND hwndEdit = CreateWindow(L"EDIT", NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_LEFT, 10, 10, MainWitdh - 40, 300, hwndMain, (HMENU)101, hInstance, NULL);
-    HWND hwndBtn = CreateWindow(L"BUTTON", L"END", WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_PUSHBUTTON, 10, 320, 100, 30, hwndMain, (HMENU)100, hInstance, NULL);
+    HWND hwndEdit = CreateWindow(L"EDIT", NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_LEFT, 10, 10, MainWitdh - 40, 300, hwndMain, (HMENU)ID_EDIT, hInstance, NULL);
+    HWND hwndBtn = CreateWindow(L"BUTTON", L"END", WS_CHILD | WS_VISIBLE | WS_TABSTOP | BS_PUSHBUTTON, 10, 320, 100, 30, hwndMain, (HMENU)ID_BTN, hInstance, NULL);
 
     
 
@@ -87,7 +91,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 
     case WM_COMMAND:
     {
-        if (HIWORD(wParam) == BN_CLICKED && LOWORD(wParam) == 100) {
+        if (HIWORD(wParam) == BN_CLICKED && LOWORD(wParam) == ID_BTN) {
             HWND hwndChildEdit = FindWindowEx(hwnd, NULL, L"EDIT", NULL);
             SetWindowText(hwndChildEdit, L"Hello World!");
         }
