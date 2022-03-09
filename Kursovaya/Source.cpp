@@ -42,7 +42,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
         WS_OVERLAPPEDWINDOW,            // Window style
 
         // Size and position
-        CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT,
+        CW_USEDEFAULT, CW_USEDEFAULT, 1200, 600,
 
         NULL,       // Parent window    
         hMainMenu,       // Menu
@@ -60,7 +60,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     int MainWitdh = MainRect.right - MainRect.left;
     int MainHeight = MainRect.bottom - MainRect.top;
 
-    HWND hwndEdit = CreateWindow(L"EDIT", NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_LEFT | WS_HSCROLL | WS_VSCROLL | ES_AUTOVSCROLL, 0, 0, MainWitdh - 20, MainHeight - 100, hwndMain, (HMENU)ID_EDIT, hInstance, NULL);
+    HWND hwndEdit = CreateWindow(L"EDIT", NULL, WS_CHILD | WS_VISIBLE | WS_BORDER | ES_MULTILINE | ES_LEFT | WS_HSCROLL | WS_VSCROLL | ES_AUTOVSCROLL, 0, 0, MainWitdh - 20, MainHeight - 60, hwndMain, (HMENU)ID_EDIT, hInstance, NULL);
     
     RegisterHotKey(hwndMain, ID_CTRLS, MOD_CONTROL, 0x53);
     RegisterHotKey(hwndMain, ID_CTRLO, MOD_CONTROL, 0x4F);
@@ -84,8 +84,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 
 }
 
-
-LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) { //hwnd - window handle; uMsg - message code; wParam & lParam - additional data
+//hwnd - window handle; uMsg - message code; wParam & lParam - additional data
+LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) { 
     const std::locale utf8_locale = std::locale(std::locale(), new std::codecvt_utf8<wchar_t>());
     
     switch (uMsg) {
@@ -99,6 +99,16 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
         FillRect(hdc, &ps.rcPaint, brush);
         EndPaint(hwnd, &ps);
         return 0;
+    }
+
+    case WM_SIZE:
+    {
+        HWND hwndChildEdit = FindWindowEx(hwnd, NULL, L"EDIT", NULL);
+        int nwidth = LOWORD(lParam);
+        int nheight = HIWORD(lParam);
+        SetWindowPos(hwndChildEdit, NULL, 0, 0, nwidth, nheight, NULL);
+
+
     }
 
     case WM_COMMAND:
@@ -152,8 +162,6 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
             wchar_t buff[1024];
             GetWindowText(hwndChildEdit, buff, 1024);
 
-            //TODO: Fix problem of writing text to an already existing txt 
-            //      or txt created in another runtime of this same program.
             std::thread to(PrintToFile, filePath, buff);
             to.join();
 
@@ -172,6 +180,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
             SetWindowText(hwnd, filePath);
             wchar_t buff[1024];
             GetWindowText(hwndChildEdit, buff, 1024);
+
             std::thread to(PrintToFile, filePath, buff);
             to.join();
         }
