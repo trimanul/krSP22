@@ -6,6 +6,7 @@
 #include <windows.h>
 #include "resource.h"
 
+#include <thread>
 #include <locale>
 #include <codecvt>
 #include <iostream>
@@ -80,6 +81,17 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 
 }
 
+void PrintToFile(wchar_t* filePath, wchar_t* buff) {
+    const std::locale utf8_locale = std::locale(std::locale(), new std::codecvt_utf8<wchar_t>());
+
+    std::wofstream wofs(filePath, std::ios_base::out);
+    if (wofs.is_open()) {
+        wofs.imbue(utf8_locale);
+        wofs << buff;
+    }
+    wofs.close();
+}
+
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) { //hwnd - window handle; uMsg - message code; wParam & lParam - additional data
     const std::locale utf8_locale = std::locale(std::locale(), new std::codecvt_utf8<wchar_t>());
     
@@ -141,12 +153,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 
             //TODO: Fix problem of writing text to an already existing txt 
             //      or txt created in another runtime of this same program.
-            std::wofstream wofs(filePath, std::ios_base::out);
-            if (wofs.is_open()) {
-                wofs.imbue(utf8_locale);
-                wofs << buff;
-            }
-            wofs.close();
+            std::thread to(PrintToFile, filePath, buff);
+            to.join();
 
 
         }
