@@ -29,6 +29,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     wc.hInstance = hInstance;
     wc.lpszClassName = CLASS_NAME;
     wc.hCursor = LoadCursor(NULL, IDC_ARROW);
+    wc.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON1));
 
     if (!RegisterClass(&wc)) 
         return -1;
@@ -86,11 +87,16 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 
 //hwnd - window handle; uMsg - message code; wParam & lParam - additional data
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) { 
+    HWND hwndChildEdit = FindWindowEx(hwnd, NULL, L"EDIT", NULL);
     const std::locale utf8_locale = std::locale(std::locale(), new std::codecvt_utf8<wchar_t>());
     
+    
     switch (uMsg) {
+
     case WM_PAINT:
     {
+        HFONT hfont = CreateFont(16, 7, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DRAFT_QUALITY, MAKELPARAM(VARIABLE_PITCH, FF_MODERN), NULL);
+        SendMessage(hwndChildEdit, WM_SETFONT, MAKEWPARAM(hfont, 0), MAKELPARAM(TRUE, 0));
         PAINTSTRUCT ps;
         HDC hdc = BeginPaint(hwnd, &ps);
         const COLORREF clr = RGB(255, 255, 255);
@@ -103,7 +109,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 
     case WM_SIZE:
     {
-        HWND hwndChildEdit = FindWindowEx(hwnd, NULL, L"EDIT", NULL);
+       
         int nwidth = LOWORD(lParam);
         int nheight = HIWORD(lParam);
         SetWindowPos(hwndChildEdit, NULL, 0, 0, nwidth, nheight, NULL);
@@ -115,7 +121,6 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
     {
 
         if (LOWORD(wParam) == ID_FILE_OPEN) {
-            HWND hwndChildEdit = FindWindowEx(hwnd, NULL, L"EDIT", NULL);
             wchar_t filePath[128];
             filePath[0] = NULL;
             OPENFILENAME FileStruct = {NULL};
@@ -140,7 +145,6 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
         }
 
         if (LOWORD(wParam) == ID_FILE_SAVE) {
-            HWND hwndChildEdit = FindWindowEx(hwnd, NULL, L"EDIT", NULL);
             wchar_t filePath[128];
             wchar_t curFile[128];
             GetWindowText(hwnd, curFile, 128);
@@ -169,7 +173,6 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
         }
 
         if (LOWORD(wParam) == ID_FILE_SAVEAS) {
-            HWND hwndChildEdit = FindWindowEx(hwnd, NULL, L"EDIT", NULL);
             wchar_t filePath[128];
             filePath[0] = NULL;
             OPENFILENAME FileStruct = { NULL };
