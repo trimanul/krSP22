@@ -15,6 +15,9 @@
 #include <sstream>
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+void PrintToFile(wchar_t* filePath, wchar_t* buff);
+
+
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, INT nCmdShow)
 {
@@ -81,16 +84,6 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 
 }
 
-void PrintToFile(wchar_t* filePath, wchar_t* buff) {
-    const std::locale utf8_locale = std::locale(std::locale(), new std::codecvt_utf8<wchar_t>());
-
-    std::wofstream wofs(filePath, std::ios_base::out);
-    if (wofs.is_open()) {
-        wofs.imbue(utf8_locale);
-        wofs << buff;
-    }
-    wofs.close();
-}
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) { //hwnd - window handle; uMsg - message code; wParam & lParam - additional data
     const std::locale utf8_locale = std::locale(std::locale(), new std::codecvt_utf8<wchar_t>());
@@ -139,15 +132,23 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
         if (LOWORD(wParam) == ID_FILE_SAVE) {
             HWND hwndChildEdit = FindWindowEx(hwnd, NULL, L"EDIT", NULL);
             wchar_t filePath[128];
-            filePath[0] = NULL;
-            OPENFILENAME FileStruct = { NULL };
-            FileStruct.lStructSize = sizeof(OPENFILENAME);
-            FileStruct.lpstrFile = filePath;
-            FileStruct.nMaxFile = 128;
-            GetSaveFileName(&FileStruct);
+            wchar_t curFile[128];
+            GetWindowText(hwnd, curFile, 128);
 
-            SetWindowText(hwnd, filePath);
+            if (wcscmp(curFile, L"Empty.txt") == 0) {
 
+                filePath[0] = NULL;
+                OPENFILENAME FileStruct = { NULL };
+                FileStruct.lStructSize = sizeof(OPENFILENAME);
+                FileStruct.lpstrFile = filePath;
+                FileStruct.nMaxFile = 128;
+                GetSaveFileName(&FileStruct);
+
+                SetWindowText(hwnd, filePath);
+            }
+            else {
+                GetWindowText(hwnd, filePath, 128);
+            }
             wchar_t buff[1024];
             GetWindowText(hwndChildEdit, buff, 1024);
 
@@ -157,6 +158,22 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
             to.join();
 
 
+        }
+
+        if (LOWORD(wParam) == ID_FILE_SAVEAS) {
+            HWND hwndChildEdit = FindWindowEx(hwnd, NULL, L"EDIT", NULL);
+            wchar_t filePath[128];
+            filePath[0] = NULL;
+            OPENFILENAME FileStruct = { NULL };
+            FileStruct.lStructSize = sizeof(OPENFILENAME);
+            FileStruct.lpstrFile = filePath;
+            FileStruct.nMaxFile = 128;
+            GetSaveFileName(&FileStruct);
+            SetWindowText(hwnd, filePath);
+            wchar_t buff[1024];
+            GetWindowText(hwndChildEdit, buff, 1024);
+            std::thread to(PrintToFile, filePath, buff);
+            to.join();
         }
 
         if (LOWORD(wParam) == ID_FILE_EXIT)
@@ -185,6 +202,19 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
     return DefWindowProc(hwnd, uMsg, wParam, lParam);;
 
 }
+
+
+void PrintToFile(wchar_t* filePath, wchar_t* buff) {
+    const std::locale utf8_locale = std::locale(std::locale(), new std::codecvt_utf8<wchar_t>());
+
+    std::wofstream wofs(filePath, std::ios_base::out);
+    if (wofs.is_open()) {
+        wofs.imbue(utf8_locale);
+        wofs << buff;
+    }
+    wofs.close();
+}
+
 
 
 
