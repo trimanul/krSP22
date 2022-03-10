@@ -128,15 +128,14 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
             FileStruct.lpstrFile = filePath;
             FileStruct.nMaxFile = 128;
             GetOpenFileName(&FileStruct);
-            SetWindowText(hwnd, filePath);
 
             std::wifstream wifs(filePath);
             if (wifs.is_open()) {
+                SetWindowText(hwnd, filePath);
                 wifs.imbue(utf8_locale);
                 std::wstringstream buff;
                 buff << wifs.rdbuf();
                 std::wstring ws = buff.str();
-
                 SetWindowText(hwndChildEdit, ws.c_str());
             }
             wifs.close();
@@ -158,7 +157,8 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                 FileStruct.nMaxFile = 128;
                 GetSaveFileName(&FileStruct);
 
-                SetWindowText(hwnd, filePath);
+                if (wcscmp(filePath, L"") != 0)
+                    SetWindowText(hwnd, filePath);
             }
             else {
                 GetWindowText(hwnd, filePath, 128);
