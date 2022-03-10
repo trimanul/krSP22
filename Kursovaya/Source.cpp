@@ -157,7 +157,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
             wchar_t curFile[128];
             GetWindowText(hwnd, curFile, 128);
 
-            if (wcscmp(curFile, L"Empty.txt") == 0) {
+            if ((wcscmp(curFile, L"Empty.txt") == 0) || (wcscmp(curFile, L"Empty.txt*") == 0)) {
 
                 filePath[0] = NULL;
                 OPENFILENAME FileStruct = { NULL };
