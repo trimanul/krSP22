@@ -119,7 +119,16 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 
     case WM_COMMAND:
     {
-
+        if (HIWORD(wParam) == EN_CHANGE) {
+            wchar_t buff[128];
+            GetWindowText(hwnd, buff, 128);
+            if (wcschr(buff, L'*') == NULL) {
+                int len = wcslen(buff);
+                buff[len] = L'*';
+                buff[len + 1] = L'\0';
+                SetWindowText(hwnd, buff);
+            }
+        }
         if (LOWORD(wParam) == ID_FILE_OPEN) {
             wchar_t filePath[128];
             filePath[0] = NULL;
@@ -156,15 +165,18 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
                 FileStruct.lpstrFile = filePath;
                 FileStruct.nMaxFile = 128;
                 GetSaveFileName(&FileStruct);
-
-                if (wcscmp(filePath, L"") != 0)
-                    SetWindowText(hwnd, filePath);
             }
             else {
                 GetWindowText(hwnd, filePath, 128);
             }
             wchar_t buff[1024];
             GetWindowText(hwndChildEdit, buff, 1024);
+
+            if (wcscmp(filePath, L"") != 0)
+                if (wcschr(filePath, L'*') != NULL) {
+                    filePath[wcslen(filePath) - 1] = L'\0';
+                    SetWindowText(hwnd, filePath);
+                }
 
             std::thread to(PrintToFile, filePath, buff);
             to.join();
