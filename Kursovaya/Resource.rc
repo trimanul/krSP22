@@ -59,8 +59,10 @@ BEGIN
         MENUITEM "Save As",                     ID_FILE_SAVEAS
         MENUITEM "Exit",                        ID_FILE_EXIT
     END
-    MENUITEM "About",                       0
-    MENUITEM "Etc",                         0
+    POPUP "About"
+    BEGIN
+        MENUITEM "KR IUK5-41B Kudinov I.V.",    ID_ABOUT_KRIUK5
+    END
 END
 
 
