@@ -140,8 +140,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Source.cpp" />
+    <ClCompile Include="CustomWnd.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CustomWnd.h" />
     <ClInclude Include="resource.h" />
   </ItemGroup>
   <ItemGroup>

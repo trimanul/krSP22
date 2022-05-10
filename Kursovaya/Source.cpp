@@ -2,9 +2,20 @@
 #define UNICODE
 #endif
 
+#if defined _M_IX86
+#pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='x86' publicKeyToken='6595b64144ccf1df' language='*'\"")
+#elif defined _M_IA64
+#pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='ia64' publicKeyToken='6595b64144ccf1df' language='*'\"")
+#elif defined _M_X64
+#pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='amd64' publicKeyToken='6595b64144ccf1df' language='*'\"")
+#else
+#pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
+#endif
 
 #include <windows.h>
 #include "resource.h"
+#include "CustomWnd.h"
+
 
 #include <thread>
 #include <locale>
@@ -13,6 +24,7 @@
 #include <fstream>
 #include <string>
 #include <sstream>
+
 
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 void PrintToFile(wchar_t* filePath, wchar_t* buff);
@@ -30,8 +42,10 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     wc.lpszClassName = CLASS_NAME;
     wc.hCursor = LoadCursor(NULL, IDC_ARROW);
     wc.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_ICON1));
-
     if (!RegisterClass(&wc)) 
+        return -1;
+
+    if (!CreateFontWndClass(hInstance))
         return -1;
 
     HMENU hMainMenu = LoadMenu(NULL, MAKEINTRESOURCE(IDR_MENU1));
@@ -55,6 +69,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
         return 0;
     }
 
+   
+
     RECT MainRect = {};
     GetWindowRect(hwndMain, &MainRect);
 
@@ -69,6 +85,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 
     ShowWindow(hwndMain, nCmdShow);
     ShowWindow(hwndEdit, nCmdShow);
+
 
 
     //Message loop
@@ -88,6 +105,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 //hwnd - window handle; uMsg - message code; wParam & lParam - additional data
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) { 
     HWND hwndChildEdit = FindWindowEx(hwnd, NULL, L"EDIT", NULL);
+    HWND hwndFontWnd = FindWindowEx(hwnd, NULL, L"FontWndClass", NULL);
     const std::locale utf8_locale = std::locale(std::locale(), new std::codecvt_utf8<wchar_t>());
     
     
@@ -95,7 +113,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 
     case WM_PAINT:
     {
-        HFONT hfont = CreateFont(17, NULL, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DRAFT_QUALITY, MAKELPARAM(VARIABLE_PITCH, FF_MODERN), NULL);
+        HFONT hfont = CreateFont(17, NULL, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DRAFT_QUALITY, MAKELPARAM(VARIABLE_PITCH, FF_MODERN), TEXT("Courier"));
         SendMessage(hwndChildEdit, WM_SETFONT, MAKEWPARAM(hfont, 0), MAKELPARAM(TRUE, 0));
         PAINTSTRUCT ps;
         HDC hdc = BeginPaint(hwnd, &ps);
@@ -202,6 +220,17 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 
         if (LOWORD(wParam) == ID_FILE_EXIT)
             PostQuitMessage(0);
+
+        if (LOWORD(wParam) == ID_FORMAT_CHANGEFONT) {
+            HINSTANCE hInstance = GetModuleHandle(NULL);
+            HWND hwndFont = CreateFontWindow(hInstance, NULL);
+            if (hwndFont == 0) {
+                return 0;
+            }
+            ShowWindow(hwndFont, SW_NORMAL);
+        }
+        
+        
 
         return 0;
     }

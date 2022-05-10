@@ -63,6 +63,10 @@ BEGIN
     BEGIN
         MENUITEM "KR IUK5-41B Kudinov I.V.",    ID_ABOUT_KRIUK5
     END
+    POPUP "Format"
+    BEGIN
+        MENUITEM "Change Font",                 ID_FORMAT_CHANGEFONT
+    END
 END
 
 
