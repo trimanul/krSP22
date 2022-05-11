@@ -2,6 +2,7 @@
 #define UNICODE
 #endif
 
+//Modern window looks
 #if defined _M_IX86
 #pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='x86' publicKeyToken='6595b64144ccf1df' language='*'\"")
 #elif defined _M_IA64
@@ -14,7 +15,7 @@
 
 #include <windows.h>
 #include "resource.h"
-#include "CustomWnd.h"
+#include "FontWnd.h"
 
 
 #include <thread>
@@ -113,7 +114,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
 
     case WM_PAINT:
     {
-        HFONT hfont = CreateFont(17, NULL, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DRAFT_QUALITY, MAKELPARAM(VARIABLE_PITCH, FF_MODERN), TEXT("Courier"));
+        HFONT hfont = CreateFont(18, NULL, 0, 0, FW_DONTCARE, FALSE, FALSE, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, ANTIALIASED_QUALITY, MAKELPARAM(VARIABLE_PITCH, FF_MODERN), TEXT("Helvetica"));
         SendMessage(hwndChildEdit, WM_SETFONT, MAKEWPARAM(hfont, 0), MAKELPARAM(TRUE, 0));
         PAINTSTRUCT ps;
         HDC hdc = BeginPaint(hwnd, &ps);
@@ -154,6 +155,7 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
             FileStruct.lStructSize = sizeof(OPENFILENAME);
             FileStruct.lpstrFile = filePath;
             FileStruct.nMaxFile = 128;
+            FileStruct.lpstrFilter = L"Text Files\0*.txt\0\0";
             GetOpenFileName(&FileStruct);
 
             std::wifstream wifs(filePath);
@@ -218,9 +220,6 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
             to.join();
         }
 
-        if (LOWORD(wParam) == ID_FILE_EXIT)
-            PostQuitMessage(0);
-
         if (LOWORD(wParam) == ID_FORMAT_CHANGEFONT) {
             HINSTANCE hInstance = GetModuleHandle(NULL);
             HWND hwndFont = CreateFontWindow(hInstance, NULL);
@@ -229,8 +228,9 @@ LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) 
             }
             ShowWindow(hwndFont, SW_NORMAL);
         }
-        
-        
+
+        if (LOWORD(wParam) == ID_FILE_EXIT)
+            PostQuitMessage(0);
 
         return 0;
     }

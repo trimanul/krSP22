@@ -11,6 +11,8 @@
 #define ID_BTN                          103
 #define ID_FONTCOMBOBOX                 104
 #define ID_SIZECOMBOBOX                 105
+#define ID_EXTEXT                       106
+
 
 #define ID_CTRLS                        200
 #define ID_CTRLO                        201
